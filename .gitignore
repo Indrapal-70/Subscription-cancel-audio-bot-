@@ -50,8 +50,7 @@ voices/
 transcript.txt
 *.wav
 *.mp3
-*.onnx
-phonikud-*.onnx
+
 
 # Model files (large)
 vosk-model-*/
