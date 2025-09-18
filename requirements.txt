@@ -1,0 +1,14 @@
+crewai
+litellm
+phonikud
+phonikud-onnx
+onnxruntime
+sounddevice
+soundfile
+pydub
+numpy
+TTS
+gTTS
+vosk
+requests
+streamlit
