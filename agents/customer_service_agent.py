@@ -9,6 +9,25 @@ class CustomerServiceAgent:
         self.transcript_agent = transcript_agent
         self.ollama_url = ollama_url.rstrip("/")
 
+    def _nikudize_text(self, text: str) -> str:
+        """
+        Safely add nikud to Hebrew text if possible. If Phonikud isn't available
+        or text doesn't contain Hebrew characters, return the original text.
+        """
+        try:
+            has_hebrew = any(
+                ("\u0590" <= ch <= "\u05FF") or ("\uFB1D" <= ch <= "\uFB4F")
+                for ch in (text or "")
+            )
+            if not has_hebrew:
+                return text
+            try:
+                return self.nikud_agent.add_nikud(text)
+            except Exception:
+                return text
+        except Exception:
+            return text
+
     def _chat_with_ollama(self, system_prompt: str, user_content: str, model: str = "mistral") -> str:
         url = f"{self.ollama_url}/api/chat"
         payload = {
@@ -41,10 +60,11 @@ class CustomerServiceAgent:
         normalized = (client_text or "").strip().lower()
         if normalized == "admin@123 123":
             reply = "subscription cancelled"
-            voice_path = self.tts_agent.text_to_speech(reply)
+            reply_nikud = self._nikudize_text(reply)
+            voice_path = self.tts_agent.text_to_speech(reply_nikud)
             self.transcript_agent.save_transcript("client", client_text)
-            self.transcript_agent.save_transcript("agent", reply)
-            print("Agent:", reply)
+            self.transcript_agent.save_transcript("agent", reply_nikud)
+            print("Agent:", reply_nikud)
             print(f"TTS generated: {voice_path}")
             return reply, voice_path
 
@@ -62,10 +82,11 @@ class CustomerServiceAgent:
         ]
         if any(p in normalized for p in negative_cancel_phrases):
             reply = "הבנתי. לא נבטל את המנוי בשלב זה. האם תרצה/י עזרה במשהו נוסף?"
-            voice_path = self.tts_agent.text_to_speech(reply)
+            reply_nikud = self._nikudize_text(reply)
+            voice_path = self.tts_agent.text_to_speech(reply_nikud)
             self.transcript_agent.save_transcript("client", client_text)
-            self.transcript_agent.save_transcript("agent", reply)
-            print("Agent:", reply)
+            self.transcript_agent.save_transcript("agent", reply_nikud)
+            print("Agent:", reply_nikud)
             print(f"TTS generated: {voice_path}")
             return reply, voice_path
 
@@ -82,13 +103,14 @@ class CustomerServiceAgent:
             system_prompt="You are a polite TV subscription customer support agent in Hebrew.",
             user_content=nikud_text,
         )
-        print("Agent:", reply)
+        reply_nikud = self._nikudize_text(reply)
+        print("Agent:", reply_nikud)
 
-        voice_path = self.tts_agent.text_to_speech(reply)
+        voice_path = self.tts_agent.text_to_speech(reply_nikud)
         print(f"TTS generated: {voice_path}")
 
         self.transcript_agent.save_transcript("client", client_text)
-        self.transcript_agent.save_transcript("agent", reply)
+        self.transcript_agent.save_transcript("agent", reply_nikud)
 
         return reply, voice_path
 
