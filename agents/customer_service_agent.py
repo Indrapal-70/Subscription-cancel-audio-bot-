@@ -100,7 +100,7 @@ class CustomerServiceAgent:
             print("Phonemes:", phonemes)
 
         reply = self._chat_with_ollama(
-            system_prompt="You are a polite TV subscription customer support agent in Hebrew.",
+            system_prompt="You are a polite Internet subscription customer support agent in Hebrew.",
             user_content=nikud_text,
         )
         reply_nikud = self._nikudize_text(reply)

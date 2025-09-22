@@ -23,7 +23,7 @@ tab_text, tab_audio = st.tabs(["Text Input", "Audio Upload (WAV)"])
 
 with tab_text:
     st.subheader("Enter text in Hebrew")
-    user_text = st.text_area("Your message", value="אני רוצה לבטל את המנוי שלי לטלוויזיה", height=120)
+    user_text = st.text_area("Your message", value="אני רוצה לבטל את המנוי שלי לאינטרנט", height=120)
     if st.button("Send", type="primary"):
         if not user_text.strip():
             st.warning("Please enter some text.")
